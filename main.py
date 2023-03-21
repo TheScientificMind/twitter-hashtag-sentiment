@@ -18,5 +18,5 @@ if __name__ == "__main__":
             print("Your hashtag was invalid. Please run the program and try again.")
             sys.exit()
     except Exception as err:
-        print(f"Your input caused the error:\n\n{err}\n\nPlease try again.")
+        print(f"The program encountered the error:\n\n{err}\n\nPlease try again.")
         
