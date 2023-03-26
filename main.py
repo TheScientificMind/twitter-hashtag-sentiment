@@ -1,8 +1,8 @@
 import sys
+import pandas as pd
 # import matplotlib.pyplot as plt
 # import seaborn as sns
 # import numpy as np
-# import pandas as pd
 # import tensorflow as tf
 # import spacy
 # import re
@@ -10,7 +10,10 @@ import sys
 
 # ensures the file isn't being imported as a module
 if __name__ == "__main__":
-    try:    
+    try:
+        df = pd.read_csv(r'C:\Users\dylan\Downloads\tweetsdataset.csv')
+        print(df)
+
         hashtag = input("What hashtag would you like to analyze (e.g. #photography): ").lower().strip()
 
         # invalid hashtag causes program to stop
