@@ -22,7 +22,7 @@ import datetime
 
 # frequently used source: https://www.tensorflow.org/text/tutorials/text_classification_rnn
 # https://www.kirenz.com/post/2022-06-17-sentiment-analysis-with-tensorflow-and-keras/
-# https://www.projectpro.io/recipes/read-csv-file-tensorlow
+# https://www.youtube.com/watch?v=hprBCp_UJN0&ab_channel=CodeHeroku
 
 def preprocess(x):
     return text_vectorizer(x)
