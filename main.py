@@ -68,8 +68,8 @@ if __name__ == "__main__":
         )
     
     model.summary()
-    keras.utils.plot_model(model, "sentiment_classifier.png")
-    keras.utils.plot_model(model, "sentiment_classifier_with_shape_info.png", show_shapes=True)
+    # keras.utils.plot_model(model, "sentiment_classifier.png")
+    # keras.utils.plot_model(model, "sentiment_classifier_with_shape_info.png", show_shapes=True)
 
     # Create TensorBoard folders
     log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     epochs = 10
 
     history = model.fit(
-        train.shuffle(buffer_size=10000).batch(512),
+        tf.data.Dataset.from_tensor_slices((train['text'].values, train['label'].values)).shuffle(buffer_size=10000).batch(512),
         epochs=epochs,
         validation_data=val.batch(512),
         callbacks=my_callbacks,
