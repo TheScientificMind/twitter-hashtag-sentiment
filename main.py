@@ -3,7 +3,6 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from keras import layers
-
 import matplotlib.pyplot as plt
 import datetime
 
@@ -32,10 +31,10 @@ test_text, test_labels = test["text"], test["label"]
 
 # layer to convert words into ints
 vectorizer = layers.TextVectorization(
-    max_tokens = 2500,
-    output_mode = "int", 
-    output_sequence_length = 200,
-    pad_to_max_tokens = True
+    max_tokens=2500,
+    output_mode="int", 
+    output_sequence_length=200,
+    pad_to_max_tokens=True
 )
 
 vectorizer.adapt(train_text) # converts train_text to ints
@@ -43,10 +42,10 @@ vectorizer.adapt(test_text) # converts test_text to ints
 
 # building the model
 model = keras.Sequential([
-    keras.layers.Embedding(10000, 16, input_length = 200),
+    keras.layers.Embedding(10000, 16, input_length=200),
     keras.layers.GlobalAveragePooling1D(),
-    keras.layers.Dense(16 ,activation = "relu"),
-    keras.layers.Dense(1, activation = "sigmoid")
+    keras.layers.Dense(16 ,activation="relu"),
+    keras.layers.Dense(1, activation="sigmoid")
 ])
 
 # compiling the model
@@ -60,23 +59,23 @@ model.compile(
 history = model.fit(
     train_text, 
     train_labels, 
-    epochs = 25, 
-    batch_size = 512, 
-    validation_data = (test_text, test_labels)
+    epochs=25, 
+    batch_size=512, 
+    validation_data=(test_text, test_labels)
 )
 
 loss, accuracy = model.evaluate(test_text, test_labels) # evaluating model loss/accuracy
 
 # check if the output is correct
-index = np.random.randint(1,1000)
+index = np.random.randint(1, 1000)
 user_review = test.loc[index]
 print(user_review)
 
 user_review = test_text[index]
 user_review = np.array([user_review])
 if (round(model.predict(user_review)) == 1).astype("int32"):
-  print("positive sentiment")
+  print("Positive sentiment")
 elif (round(model.predict(user_review)) == -1).astype("int32"):
-  print("negative sentiment")
+  print("Negative sentiment")
 else:
-  print("neutral sentiment")
+  print("Neutral sentiment")
