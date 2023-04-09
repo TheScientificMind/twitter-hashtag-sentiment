@@ -1,3 +1,5 @@
+import tweepy
+
 hashtag = input("What hashtag would you like to analyze (e.g. #photography): ").lower().strip()
 
 # keeps asking until given a proper hashtag
