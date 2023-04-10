@@ -50,6 +50,35 @@ history = model.fit(
     validation_data=(test_text, test_labels)
 )
 
-loss, accuracy = model.evaluate(test_text, test_labels) # evaluating model loss/accuracy
+acc = history.history["accuracy"]
+val_acc = history.history["val_accuracy"]
+loss = history.history["loss"]
+val_loss = history.history["val_loss"]
+
+epochs = range(1, len(acc) + 1)
+
+# graph of accuracy and loss over epochs
+
+plt.plot(epochs, loss, 'bo', label='Training loss')
+plt.plot(epochs, val_loss, 'r', label='Validation loss')
+plt.title('Training and validation loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+
+plt.show()
+plt.savefig("loss.png")
+
+plt.clf()
+
+plt.plot(epochs, acc, 'bo', label='Training acc')
+plt.plot(epochs, val_acc, 'r', label='Validation acc')
+plt.title('Training and validation accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend(loc='lower right')
+
+plt.show()
+plt.savefig("accuracy.png")
 
 model.save("twitter_model") # saves the model
