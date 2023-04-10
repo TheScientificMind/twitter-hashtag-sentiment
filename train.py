@@ -57,7 +57,7 @@ val_loss = history.history["val_loss"]
 
 epochs = range(1, len(acc) + 1)
 
-# graph of accuracy and loss over epochs
+# graphs accuracy and loss over epochs
 
 plt.plot(epochs, loss, 'bo', label='Training loss')
 plt.plot(epochs, val_loss, 'r', label='Validation loss')

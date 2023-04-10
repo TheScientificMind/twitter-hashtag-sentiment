@@ -1,10 +1,17 @@
 import re
 import pandas as pd
+import tensorflow as tf
 from keras import layers
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import pickle
+
+# following four lines source: https://stackoverflow.com/questions/65103526/
+from_disk = pickle.load(open("tv_layer.pkl", "rb"))
+vectorizer = layers.TextVectorization.from_config(from_disk['config'])
+vectorizer.adapt(tf.data.Dataset.from_tensor_slices(["xyz"]))
+vectorizer.set_weights(from_disk['weights']) 
 
 def preprocess_twt(twt):
     # following line: https://stackoverflow.com/questions/11331982
@@ -30,10 +37,7 @@ def preprocess_twt(twt):
 def preprocess_twts(twts):
     twts.adapt(preprocess_twt)
 
+# load vectorizer and vectorize data
 def vectorize_twts(twts):
-    from_disk = pickle.load(open("tv_layer.pkl", "rb"))
-     = TextVectorization.from_config(from_disk['config'])
-
     vectorizer.adapt(twts) # converts train_text to ints
-
     return(twts)

@@ -9,6 +9,8 @@ vectorizer = layers.TextVectorization(
     pad_to_max_tokens=True
 )
 
+# source of the following code: https://stackoverflow.com/questions/65103526
+
 # Pickle the config and weights
 pickle.dump({
     "config": vectorizer.get_config(),
