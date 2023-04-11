@@ -11,20 +11,20 @@ from my_preprocess import preprocess_twts, vectorize_twts
 # https://www.kirenz.com/post/2022-06-17-sentiment-analysis-with-tensorflow-and-keras/
 # https://www.youtube.com/watch?v=hprBCp_UJN0&ab_channel=CodeHeroku
 
-tweets = load_dataset("carblacac/twitter-sentiment-analysis", "None")
+# Source of the next 3 lines: https://www.kaggle.com/code/stoicstatic/twitter-sentiment-analysis-for-beginners
+columns  = ["text", "labels"]
+twt_encoding = "ISO-8859-1"
+tweets = pd.read_csv('sentiment500.csv', encoding=twt_encoding, names=columns, dtype={"text": str, "labels": int}) # importing the dataset
 
 split_point = round(len(tweets) * 0.95) # the id at which the tweet dataset should be split
 
 train = tweets[:split_point]
-train_text = preprocess_twts(train["text"].astype(str))
-train_labels = train["label"].astype(int)
+train_text = vectorize_twts(np.array(preprocess_twts(train["text"])))
+train_labels = train["label"]
 
 test = tweets[split_point:]
-test_text = preprocess_twts(test["text"].astype(str))
-test_labels = test["label"].astype(int)
-
-vectorize_twts(train_text)
-vectorize_twts(test_text)
+test_text = vectorize_twts(np.array(preprocess_twts(test["text"])))
+test_labels = test["label"]
 
 # building the model
 model = keras.Sequential([

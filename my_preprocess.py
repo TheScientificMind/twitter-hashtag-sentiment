@@ -7,15 +7,17 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import pickle
 
-# following four lines source: https://stackoverflow.com/questions/65103526/
-from_disk = pickle.load(open("tv_layer.pkl", "rb"))
-vectorizer = layers.TextVectorization.from_config(from_disk['config'])
-vectorizer.adapt(tf.data.Dataset.from_tensor_slices(["xyz"]))
-vectorizer.set_weights(from_disk['weights']) 
+# layer to convert words into ints
+vectorizer = layers.TextVectorization(
+    max_tokens=2500,
+    output_mode="int", 
+    output_sequence_length=200,
+    pad_to_max_tokens=True
+)
 
 def preprocess_twt(twt):
-    # following line: https://stackoverflow.com/questions/11331982
-    twt = re.sub(r"(https?:\/\/)(\s)*(www\.)?(\s)*((\w|\s)+\.)*([\w\-\s]+\/)*([\w\-]+)((\?)?[\w\s]*=\s*[\w\%&]*)*", "", twt) # removes urls
+    # following line: https://www.kaggle.com/code/stoicstatic/twitter-sentiment-analysis-for-beginners
+    twt = re.sub(r"((http://)[^ ]*|(https://)[^ ]*|( www\.)[^ ]*)", "", twt) # removes urls
     twt = re.sub(r"@\w+", "", twt) # removes mentions
     twt = re.sub(r"#/w+", "", twt) # removes hashtags
     twt = re.sub(r"[^a-zA-Z0-9]", " ", twt) # removes non-alphanumeric chars
@@ -24,20 +26,21 @@ def preprocess_twt(twt):
 
     twt = word_tokenize(twt)
 
-    stop_words = stopwords.words('english')
+    stop_words = stopwords.words("english")
     twt = [token for token in twt if token not in stop_words] # remove stowords (e.g. a, an, the)
 
     stemmer = PorterStemmer()
     twt = [stemmer.stem(token) for token in twt] # stems words (e.g. babbled -> babble)
 
-    twt = ' '.join(twt)
+    twt = " ".join(twt).strip()
 
     return twt
 
 def preprocess_twts(twts):
-    twts.adapt(preprocess_twt)
+    twts.apply(preprocess_twt)
 
 # load vectorizer and vectorize data
 def vectorize_twts(twts):
     vectorizer.adapt(twts) # converts train_text to ints
+    twts = vectorizer(twts)
     return(twts)
