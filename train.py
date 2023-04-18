@@ -12,32 +12,29 @@ from my_preprocess import preprocess_twts, vectorize_twts
 # https://www.youtube.com/watch?v=hprBCp_UJN0&ab_channel=CodeHeroku
 
 # Source of the next 3 lines: https://www.kaggle.com/code/stoicstatic/twitter-sentiment-analysis-for-beginners
-columns  = ["text", "labels"]
+columns  = ["id", "entity", "sentiment", "content"]
 twt_encoding = "ISO-8859-1"
-tweets = pd.read_csv('sentiment500.csv', encoding=twt_encoding, names=columns, dtype={"text": str, "labels": int}) # importing the dataset
+tweets_training = pd.read_csv("twitter_training.csv", encoding=twt_encoding, names=columns) # importing the dataset
+tweets_test = pd.read_csv("twitter_validation.csv", encoding=twt_encoding, names=columns)
 
-split_point = round(len(tweets) * 0.95) # the id at which the tweet dataset should be split
+train_text = vectorize_twts(np.array(preprocess_twts(tweets_training["content"].astype(str))))
+train_labels = tweets_training["sentiment"]
 
-train = tweets[:split_point]
-train_text = vectorize_twts(np.array(preprocess_twts(train["text"])))
-train_labels = train["label"]
-
-test = tweets[split_point:]
-test_text = vectorize_twts(np.array(preprocess_twts(test["text"])))
-test_labels = test["label"]
+test_text = vectorize_twts(np.array(preprocess_twts(tweets_test["content"].astype(str))))
+test_labels = tweets_test["sentiment"]
 
 # building the model
 model = keras.Sequential([
     keras.layers.Embedding(10000, 16, input_length=200),
     keras.layers.GlobalAveragePooling1D(),
     keras.layers.Dense(16 ,activation="relu"),
-    keras.layers.Dense(1, activation="sigmoid")
+    keras.layers.Dense(4, activation="softmax")
 ])
 
 # compiling the model
 model.compile(
     optimizer="adam", 
-    loss="binary_crossentropy", 
+    loss="sparse_categorical_crossentropy", 
     metrics=["accuracy"]
 ) 
 

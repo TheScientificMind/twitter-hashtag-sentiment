@@ -38,9 +38,11 @@ def preprocess_twt(twt):
 
 def preprocess_twts(twts):
     twts.apply(preprocess_twt)
+    twts = [twt for twt in twts if twt is not None]
+    return twts
 
 # load vectorizer and vectorize data
 def vectorize_twts(twts):
     vectorizer.adapt(twts) # converts train_text to ints
     twts = vectorizer(twts)
-    return(twts)
+    return twts
