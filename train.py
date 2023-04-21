@@ -17,18 +17,22 @@ twt_encoding = "ISO-8859-1"
 tweets_training = pd.read_csv("twitter_training.csv", encoding=twt_encoding, names=columns) # importing the dataset
 tweets_test = pd.read_csv("twitter_validation.csv", encoding=twt_encoding, names=columns)
 
-train_text = vectorize_twts(np.array(preprocess_twts(tweets_training["content"].astype(str))))
-train_labels = tweets_training["sentiment"]
+tweets_training["content"] = preprocess_twts(tweets_training["content"].astype(str))
+tweets_training.dropna()
+train_text = vectorize_twts(np.array(tweets_training["content"]))
+train_labels = tweets_training["sentiment"].astype(int)
 
-test_text = vectorize_twts(np.array(preprocess_twts(tweets_test["content"].astype(str))))
-test_labels = tweets_test["sentiment"]
+tweets_test["content"] = preprocess_twts(tweets_test["content"].astype(str))
+tweets_test.dropna()
+test_text = vectorize_twts(np.array(tweets_test["content"]))
+test_labels = tweets_test["sentiment"].astype(int)
 
 # building the model
 model = keras.Sequential([
     keras.layers.Embedding(10000, 16, input_length=200),
     keras.layers.GlobalAveragePooling1D(),
     keras.layers.Dense(16 ,activation="relu"),
-    keras.layers.Dense(4, activation="softmax")
+    keras.layers.Dense(3, activation="softmax")
 ])
 
 # compiling the model
