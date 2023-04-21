@@ -67,9 +67,8 @@ plt.xlabel('Epochs')
 plt.ylabel('Loss')
 plt.legend()
 
-plt.show()
 plt.savefig("loss.png")
-
+plt.show()
 plt.clf()
 
 plt.plot(epochs, acc, 'bo', label='Training acc')
@@ -79,7 +78,8 @@ plt.xlabel('Epochs')
 plt.ylabel('Accuracy')
 plt.legend(loc='lower right')
 
-plt.show()
 plt.savefig("accuracy.png")
+plt.show()
+plt.clf()
 
 model.save("twitter_model") # saves the model
