@@ -5,15 +5,6 @@ from keras import layers
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
-import pickle
-
-# layer to convert words into ints
-vectorizer = layers.TextVectorization(
-    max_tokens=2500,
-    output_mode="int", 
-    output_sequence_length=200,
-    pad_to_max_tokens=True
-)
 
 def preprocess_twt(twt):
     # following line: https://www.kaggle.com/code/stoicstatic/twitter-sentiment-analysis-for-beginners
@@ -38,10 +29,4 @@ def preprocess_twt(twt):
 
 def preprocess_twts(twts):
     twts.apply(preprocess_twt)
-    return twts
-
-# load vectorizer and vectorize data
-def vectorize_twts(twts):
-    vectorizer.adapt(twts) # converts train_text to ints
-    twts = vectorizer(twts)
     return twts

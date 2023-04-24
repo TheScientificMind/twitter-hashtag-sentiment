@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 from tensorflow import keras
+from keras import layers
 from keras.layers import LSTM, Dropout, Embedding, Dense, GlobalMaxPool1D
 from keras.models import Sequential
 from keras.utils.np_utils import to_categorical
@@ -10,33 +11,37 @@ from keras.callbacks import EarlyStopping
 import matplotlib.pyplot as plt
 import datetime
 from sklearn.utils.class_weight import compute_class_weight
-from my_preprocess import preprocess_twts, vectorize_twts
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix, classification_report
+from sklearn.model_selection import train_test_split
+import pickle
+from my_preprocess import preprocess_twts
+
+# dataset: https://www.kaggle.com/datasets/yasserh/twitter-tweets-sentiment-dataset
 
 # frequently used source: 
 # https://www.kirenz.com/post/2022-06-17-sentiment-analysis-with-tensorflow-and-keras/
 # https://www.youtube.com/watch?v=hprBCp_UJN0&ab_channel=CodeHeroku
 # https://www.kaggle.com/code/malekmavetgaming/classifying-tweets-using-nlp-in-tensorflow-2-0
+# https://www.kaggle.com/code/irasalsabila/twitter-sentiment
 
-# Source of the next 3 lines: https://www.kaggle.com/code/stoicstatic/twitter-sentiment-analysis-for-beginners
-columns  = ["id", "entity", "sentiment", "content"]
-twt_encoding = "ISO-8859-1"
-train = pd.read_csv("twitter_training.csv", encoding=twt_encoding, names=columns) # importing the dataset
-tweets_test = pd.read_csv("twitter_validation.csv", encoding=twt_encoding, names=columns)
+vectorizer = layers.TextVectorization(
+    max_tokens=2500,
+    output_mode="int", 
+    output_sequence_length=200,
+    pad_to_max_tokens=True
+)
 
-train["content"] = preprocess_twts(train["content"].astype(str))
-train = train.dropna()
-x_train = vectorize_twts(np.array(train["content"]))
-y_train = train["sentiment"].astype(int)
+df = pd.read_csv("tweets.csv") # importing the dataset
 
-weight = compute_class_weight(class_weight="balanced", classes=np.unique(y_train), y=y_train) # finding class weights for fixing dataset imbalance
-weight = {i: weight[i] for i in range(len(weight))}
+df["text"] = preprocess_twts(df["text"].astype(str))
+df = df.dropna()
 
-y_train = to_categorical(y_train, num_classes=3)
+vectorizer.adapt(np.array(df["text"]))
+x = vectorizer(np.array(df["text"]))
+y = to_categorical(df["sentiment"].astype(int), num_classes=3)
 
-tweets_test["content"] = preprocess_twts(tweets_test["content"].astype(str))
-tweets_test = tweets_test.dropna()
-x_test = vectorize_twts(np.array(tweets_test["content"]))
-y_test = to_categorical(tweets_test["sentiment"].astype(int), num_classes=3)
+x_train, x_test, y_train, y_test = train_test_split(np.array(x), np.array(y), test_size=0.1, random_state=42)
 
 # building the model
 model = Sequential([
@@ -44,13 +49,18 @@ model = Sequential([
     LSTM(128, return_sequences=True),
     GlobalMaxPool1D(),
     Dense(64, activation = "relu"),
-    Dropout(.2),
+    Dropout(.1),
     Dense(16, activation = "relu"),
-    Dropout(.2),
+    Dropout(.1),
     Dense(3, activation = "softmax")
 ])
 
-opt = RMSprop(learning_rate=0.03, rho=0.7, momentum=0.5)
+# Next 3 lines source: stackoverflow.com/questions/65103526
+pickle.dump({'config': vectorizer.get_config(),
+             'weights': vectorizer.get_weights()}
+            , open("tv_layer.pkl", "wb"))
+
+opt = RMSprop(learning_rate=0.0012, rho=0.7, momentum=0.5)
 
 # compiling the model
 model.compile(
@@ -67,11 +77,10 @@ history = model.fit(
     y_train, 
     epochs=15, 
     batch_size=100,
-    validation_data=(x_test, y_test),
+    validation_split=0.1,
     shuffle=True,
     verbose=1,
-    callbacks=early_stop,
-    class_weight=weight
+    callbacks=early_stop
 )
 
 acc = history.history["accuracy"]
@@ -100,5 +109,26 @@ plt.ylabel('Accuracy')
 plt.legend(loc='lower right')
 plt.show()
 plt.clf()
+
+#build eveluation function
+def evaluation(model, X, Y):
+  global Y_pred, Y_act
+  Y_pred = model.predict(X)
+  Y_pred_class = np.argmax(Y_pred, axis=1)
+  rounded_labels=np.argmax(Y, axis=1)
+  Y_act = rounded_labels
+  
+  accuracy = accuracy_score(Y_act, Y_pred_class)
+  return accuracy
+
+# checking accuracy score
+accuracy = evaluation(model, x_test, y_test)
+print('accuracy: %.3f' % (accuracy * 100), '%')
+
+target = ['neu', 'neg', 'pos']
+print(confusion_matrix(Y_act, np.argmax(Y_pred, axis=1)))
+print(classification_report(Y_act, np.argmax(Y_pred, axis = 1), target_names = target))
+
+accuracy = evaluation(model, x_test, y_test)
 
 model.save("twitter_model") # saves the model
