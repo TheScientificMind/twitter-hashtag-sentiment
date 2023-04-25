@@ -9,26 +9,26 @@ import pickle
 from dotenv import load_dotenv
 from my_preprocess import preprocess_twt
 
-# don't run analysis before training the model (train.py)
+# don"t run analysis before training the model (train.py)
 
 # commonly used source: docs.tweepy.org
 
 load_dotenv()
 
 try:
-    model = load_model('twitter_model')
+    model = load_model("twitter_model")
     model.summary()
 
     # loads vectorizer, source: stackoverflow.com/questions/65103526
     from_disk = pickle.load(open("tv_layer.pkl", "rb"))
     new_vectorizer = layers.TextVectorization(
-        max_tokens=from_disk['config']['max_tokens'],
-        output_mode=from_disk['config']['output_mode'],
-        output_sequence_length=from_disk['config']['output_sequence_length']
+        max_tokens=from_disk["config"]["max_tokens"],
+        output_mode=from_disk["config"]["output_mode"],
+        output_sequence_length=from_disk["config"]["output_sequence_length"]
     )
 
     new_vectorizer.adapt(tf.data.Dataset.from_tensor_slices(["xyz"]))
-    new_vectorizer.set_weights(from_disk['weights'])
+    new_vectorizer.set_weights(from_disk["weights"])
 
     # gets twitter access credentials
     auth = tweepy.OAuth1UserHandler(
@@ -57,7 +57,7 @@ try:
     predictions = model.predict(np.array(tweet_list))
     pdxn = np.mean(predictions, axis=0)
     indx = np.argmax(pdxn)
-    sentiment_labels = ['positive', 'neutral', 'negative']
+    sentiment_labels = ["negative", "neutral", "positive"]
     sentiment_pdxn = {sentiment_labels[i]: pdxn[i] for i in range(3)}
 
     print(f"Predicted sentiment: {sentiment_labels[indx]}")
