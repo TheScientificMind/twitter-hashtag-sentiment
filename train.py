@@ -48,7 +48,9 @@ model = Sequential([
     Embedding(10000, 128, input_length=200),
     LSTM(128, return_sequences=True),
     GlobalMaxPool1D(),
-    Dense(64, activation="relu"),
+    Dense(36, activation="relu"),
+    Dropout(.1),
+    Dense(24, activation="relu"),
     Dropout(.1),
     Dense(16, activation="relu"),
     Dropout(.1),
@@ -96,7 +98,6 @@ plt.plot(epochs, val_loss, "r", label="Validation loss")
 plt.title("Training and validation loss")
 plt.xlabel("Epochs")
 plt.ylabel("Loss")
-plt.legend()
 plt.savefig("loss.png")
 plt.show()
 plt.clf()
@@ -107,7 +108,6 @@ plt.plot(epochs, val_acc, "r", label="Validation acc")
 plt.title("Training and validation accuracy")
 plt.xlabel("Epochs")
 plt.ylabel("Accuracy")
-plt.legend(loc="lower right")
 plt.savefig("accuracy.png")
 plt.show()
 plt.clf()
