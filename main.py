@@ -13,6 +13,12 @@ from my_preprocess import preprocess_twt
 
 # commonly used source: docs.tweepy.org
 
+def append_twts(twts, twt_list=[]):
+    if len(twts) == 0:
+        return twt_list
+    twt_list.append(twts.pop(0).text)
+    return append_twts(twts, twt_list)
+
 load_dotenv()
 
 try:
@@ -45,16 +51,14 @@ try:
     tweets = tweepy.Cursor(api.search_tweets, hashtag, lang="en").items(100)
 
     # converts tweets to list
-    tweet_list = []
-    for tweet in tweets:
-        tweet_list.append(tweet.text)
+    tweets = append_twts(tweets)
 
     # preprocesses tweets
-    tweet_list = [preprocess_twt(twt) for twt in tweet_list]
-    tweet_list = new_vectorizer(np.array(tweet_list))
+    tweets = [preprocess_twt(twt) for twt in tweets]
+    tweets = new_vectorizer(np.array(tweets))
 
     # makes sentiment prections
-    predictions = model.predict(np.array(tweet_list))
+    predictions = model.predict(np.array(tweets))
     pdxn = np.mean(predictions, axis=0)
     indx = np.argmax(pdxn)
     sentiment_labels = ["negative", "neutral", "positive"]
