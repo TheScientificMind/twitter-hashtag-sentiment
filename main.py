@@ -1,23 +1,18 @@
 import os
 import tweepy
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
 from keras.models import load_model
 from keras import layers
 import pickle
 from dotenv import load_dotenv
-from my_preprocess import preprocess_twt
+from my_preprocess import Preprocessor
 
-# don"t run analysis before training the model (train.py)
+# don't run analysis before training the model (train.py)
 
 # commonly used source: docs.tweepy.org
-
-def append_twts(twts, twt_list=[]):
-    if len(twts) == 0:
-        return twt_list
-    twt_list.append(twts.pop(0).text)
-    return append_twts(twts, twt_list)
 
 load_dotenv()
 
@@ -32,7 +27,6 @@ try:
         output_mode=from_disk["config"]["output_mode"],
         output_sequence_length=from_disk["config"]["output_sequence_length"]
     )
-
     new_vectorizer.adapt(tf.data.Dataset.from_tensor_slices(["xyz"]))
     new_vectorizer.set_weights(from_disk["weights"])
 
@@ -51,20 +45,21 @@ try:
     tweets = tweepy.Cursor(api.search_tweets, hashtag, lang="en").items(100)
 
     # converts tweets to list
-    tweets = append_twts(tweets)
+    tweet_list = []
+    for tweet in tweets:
+        tweet_list.append(tweet.text)
 
     # preprocesses tweets
-    tweets = [preprocess_twt(twt) for twt in tweets]
-    tweets = new_vectorizer(np.array(tweets))
+    tweet_list = [Preprocessor(twt=tweet).clean_twt() for tweet in tweet_list]
+    tweet_list = new_vectorizer(np.array(tweet_list))
 
     # makes sentiment prections
-    predictions = model.predict(np.array(tweets))
-    pdxn = np.mean(predictions, axis=0)
-    indx = np.argmax(pdxn)
+    predictions = model.predict(np.array(tweet_list))
+    predictions = [np.argmax(prediction) for prediction in predictions]
+    unrounded_indx = np.mean(predictions)
     sentiment_labels = ["negative", "neutral", "positive"]
-    sentiment_pdxn = {sentiment_labels[i]: pdxn[i] for i in range(3)}
 
-    print(f"Predicted sentiment: {sentiment_labels[indx]}")
-    print(f"Sentiment chances: {sentiment_pdxn}")
+    print(f"Predicted sentiment: {sentiment_labels[round(unrounded_indx)]}")
+    print(f"Sentiment value (0 = negative, 1 = neutral, 2 = positive): {unrounded_indx}")
 except Exception as err:
-    print("There was an error (likely a mistaken input):\n\n{err}\n\nPlease try again.")
+    print(f"There was an error:\n\n{err}\n\nPlease try again.")
