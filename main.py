@@ -44,6 +44,7 @@ try:
     tweet_num = 500
     run_loop = True
     while run_loop:
+        time.sleep(.5)
         hashtag = input("What term would you like to analyze (e.g. #cutedogs, @elonmusk, terrible): ").lower().strip()
 
         # Collect tweets using the Cursor object
