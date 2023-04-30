@@ -8,7 +8,7 @@ from keras.models import load_model
 from keras import layers
 import pickle
 from dotenv import load_dotenv
-from my_preprocess import Preprocessor
+from my_preprocess import Preprocessor # importing my own preprocessing class
 
 # don't run analysis before training the model (train.py)
 
@@ -20,7 +20,8 @@ try:
     model = load_model("twitter_model")
     model.summary()
 
-    # loads vectorizer, source: stackoverflow.com/questions/65103526
+    # loads vectorizer
+    # next 8 lines source: stackoverflow.com/questions/65103526
     from_disk = pickle.load(open("tv_layer.pkl", "rb"))
     new_vectorizer = layers.TextVectorization(
         max_tokens=from_disk["config"]["max_tokens"],
@@ -39,27 +40,33 @@ try:
     # Create API object
     api = tweepy.API(auth)
 
-    hashtag = input("What term would you like to analyze (e.g. #photography, @elonmusk, apple): ").lower().strip()
+    run_loop = True
+    while run_loop:
+        hashtag = input("What term would you like to analyze (e.g. #cutedogs, @elonmusk, terrible): ").lower().strip()
 
-    # Collect tweets using the Cursor object
-    tweets = tweepy.Cursor(api.search_tweets, hashtag, lang="en").items(100)
+        # Collect tweets using the Cursor object
+        tweets = tweepy.Cursor(api.search_tweets, hashtag, lang="en").items(100)
 
-    # converts tweets to list
-    tweet_list = []
-    for tweet in tweets:
-        tweet_list.append(tweet.text)
+        # converts tweets to list
+        tweet_list = []
+        for tweet in tweets:
+            tweet_list.append(tweet.text)
 
-    # preprocesses tweets
-    tweet_list = [Preprocessor(twt=tweet).clean_twt() for tweet in tweet_list]
-    tweet_list = new_vectorizer(np.array(tweet_list))
+        # preprocesses tweets
+        tweet_list = [Preprocessor(twt=tweet).clean_twt() for tweet in tweet_list] # preprocesses tweets using the prrocessor class
+        tweet_list = new_vectorizer(np.array(tweet_list)) # vectorizes tweets
 
-    # makes sentiment prections
-    predictions = model.predict(np.array(tweet_list))
-    predictions = [np.argmax(prediction) for prediction in predictions]
-    unrounded_indx = np.mean(predictions)
-    sentiment_labels = ["negative", "neutral", "positive"]
+        # makes sentiment prections
+        predictions = model.predict(np.array(tweet_list))
+        predictions = [np.argmax(prediction) for prediction in predictions] # gets the index of the highest value in each prediction
+        unrounded_indx = np.mean(predictions) # gets the average of the predictions
+        sentiment_labels = ["negative", "neutral", "positive"]
 
-    print(f"Predicted sentiment: {sentiment_labels[round(unrounded_indx)]}")
-    print(f"Sentiment value (0 = negative, 1 = neutral, 2 = positive): {unrounded_indx}")
+        print(f"Predicted sentiment: {sentiment_labels[round(unrounded_indx)]}") # prints overall sentiment
+        print(f"Sentiment value (0 = negative, 1 = neutral, 2 = positive): {unrounded_indx}") # prints sentiment value
+
+        # stop the loop if the user doesn't want to analyze another term
+        if input("Would you like to analyze another term (y/n): ").lower().strip() == "n":
+            run_loop = False
 except Exception as err:
     print(f"There was an error:\n\n{err}\n\nPlease try again.")
