@@ -7,6 +7,7 @@ from tensorflow import keras
 from keras.models import load_model
 from keras import layers
 import pickle
+import time
 from dotenv import load_dotenv
 from my_preprocess import Preprocessor # importing my own preprocessing class
 
@@ -20,7 +21,7 @@ try:
     model = load_model("twitter_model")
     model.summary()
 
-    # loads vectorizer
+    # loads vectorizerz
     # next 8 lines source: stackoverflow.com/questions/65103526
     from_disk = pickle.load(open("tv_layer.pkl", "rb"))
     new_vectorizer = layers.TextVectorization(
@@ -40,12 +41,14 @@ try:
     # Create API object
     api = tweepy.API(auth)
 
+    tweet_num = 500
+
     run_loop = True
     while run_loop:
         hashtag = input("What term would you like to analyze (e.g. #cutedogs, @elonmusk, terrible): ").lower().strip()
 
         # Collect tweets using the Cursor object
-        tweets = tweepy.Cursor(api.search_tweets, hashtag, lang="en").items(500)
+        tweets = tweepy.Cursor(api.search_tweets, hashtag, lang="en").items(tweet_num)
 
         # converts tweets to list
         tweet_list = []
@@ -53,7 +56,7 @@ try:
             tweet_list.append(tweet.text)
 
         # ensures that the API sucsessfully got enough tweets
-        if len(tweet_list) < 500:
+        if len(tweet_list) < tweet_num:
             restart_loop = input("There was an issue getting those tweets. Would you like to analyze another term (y/n): ").lower().strip()
             if restart_loop == "y":
                 continue
