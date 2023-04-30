@@ -42,7 +42,6 @@ try:
     api = tweepy.API(auth)
 
     tweet_num = 500
-
     run_loop = True
     while run_loop:
         hashtag = input("What term would you like to analyze (e.g. #cutedogs, @elonmusk, terrible): ").lower().strip()
