@@ -45,7 +45,7 @@ try:
         hashtag = input("What term would you like to analyze (e.g. #cutedogs, @elonmusk, terrible): ").lower().strip()
 
         # Collect tweets using the Cursor object
-        tweets = tweepy.Cursor(api.search_tweets, hashtag, lang="en").items(250)
+        tweets = tweepy.Cursor(api.search_tweets, hashtag, lang="en").items(500)
 
         # converts tweets to list
         tweet_list = []
@@ -53,7 +53,7 @@ try:
             tweet_list.append(tweet.text)
 
         # ensures that the API sucsessfully got enough tweets
-        if len(tweet_list) < 250:
+        if len(tweet_list) < 500:
             restart_loop = input("There was an issue getting those tweets. Would you like to analyze another term (y/n): ").lower().strip()
             if restart_loop == "y":
                 continue
