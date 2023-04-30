@@ -41,7 +41,7 @@ try:
     # Create API object
     api = tweepy.API(auth)
 
-    tweet_num = 500
+    tweet_num = 250
     run_loop = True
     while run_loop:
         time.sleep(.5)
