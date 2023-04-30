@@ -45,12 +45,20 @@ try:
         hashtag = input("What term would you like to analyze (e.g. #cutedogs, @elonmusk, terrible): ").lower().strip()
 
         # Collect tweets using the Cursor object
-        tweets = tweepy.Cursor(api.search_tweets, hashtag, lang="en").items(100)
+        tweets = tweepy.Cursor(api.search_tweets, hashtag, lang="en").items(250)
 
         # converts tweets to list
         tweet_list = []
         for tweet in tweets:
             tweet_list.append(tweet.text)
+
+        # ensures that the API sucsessfully got enough tweets
+        if len(tweet_list) < 250:
+            restart_loop = input("There was an issue getting those tweets. Would you like to analyze another term (y/n): ").lower().strip()
+            if restart_loop == "y":
+                continue
+            else:
+                break
 
         # preprocesses tweets
         tweet_list = [Preprocessor(twt=tweet).clean_twt() for tweet in tweet_list] # preprocesses tweets using the prrocessor class
@@ -63,7 +71,7 @@ try:
         sentiment_labels = ["negative", "neutral", "positive"]
 
         print(f"Predicted sentiment: {sentiment_labels[round(unrounded_indx)]}") # prints overall sentiment
-        print(f"Sentiment value (0 = negative, 1 = neutral, 2 = positive): {unrounded_indx}") # prints sentiment value
+        print(f"Sentiment value (0 = negative, 1 = neutral, 2 = positive): {round(unrounded_indx, 2)}") # prints sentiment value
 
         # stop the loop if the user doesn't want to analyze another term
         if input("Would you like to analyze another term (y/n): ").lower().strip() == "n":
