@@ -36,7 +36,7 @@ df = pd.read_csv("tweets.csv")
 df.head(5)
 
 # preprocessing
-preprocessor = Preprocessor(twts=df["text"].astype(str)) # creates an instance of the Preprocessor class
+preprocessor = Preprocessor(twts=df["text"].astype(str)) # instance of the Preprocessor class
 df["text"] = preprocessor.clean_twts()
 df = df.dropna()
 vectorizer.adapt(np.array(df["text"]))
@@ -54,7 +54,7 @@ weight[1] = weight[1] - 0.2
 y_train, y_test = to_categorical(y_train.astype(int), num_classes=3), to_categorical(y_test.astype(int), num_classes=3)
 
 # build the model
-# regularizer sourcee: https://medium.com/data-science-365/how-to-apply-l1-and-l2-regularization-techniques-to-keras-models-da6249d8a469
+# regularizer sourcee: keras.io/api/layers/regularizers/
 model = Sequential([
     Embedding(10000, 128, input_length=200),
     LSTM(128, return_sequences=True),

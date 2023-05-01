@@ -8,7 +8,7 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from replace_dicts import emoji_dict, emoticons
 
-# commonly used source: https://www.kaggle.com/code/greyisbetter/twitter-sentiment-analysis-u-b-d-fs
+# frequently used source: kaggle.com/code/greyisbetter/twitter-sentiment-analysis-u-b-d-fs
 
 # preprocessing class to clean tweets
 class Preprocessor:
@@ -28,7 +28,12 @@ class Preprocessor:
     def replace_emojis(self, twt):
         for emoji, value in self.emojis.items():
             if emoji in twt:
-                twt = twt.replace(emoji, f" {value} ")
+                if value == "positive":
+                    twt = twt.replace(emoji, f" positive ")
+                elif value == "negative":
+                    twt = twt.replace(emoji, f" negative ")
+                elif value == "neutral":
+                     twt = twt.replace(emoji, f" neutral ")
 
         twt = twt.split()
         twt = " ".join(twt).strip()
@@ -46,7 +51,7 @@ class Preprocessor:
 
         return twt
 
-    # removes urls, hashtags, mentions, stopwords, and non-alphanumeric chars and then lemmatizes the text
+    # removes urls, hashtags, mentions, stopwords, and non-alphanumeric chars and lemmatizes the text
     def preprocess_twt(self, twt):
         # next line source: https://stackoverflow.com/questions/11331982/
         twt = re.sub(r"(https?:\/\/)(\s)*(www\.)?(\s)*((\w|\s)+\.)*([\w\-\s]+\/)*([\w\-]+)((\?)?[\w\s]*=\s*[\w\%&]*)*", "", twt) # removes urls
@@ -57,9 +62,9 @@ class Preprocessor:
         twt = twt.lower()
         twt = word_tokenize(twt)
 
-        twt = [token for token in twt if token not in self.stop_words] # remove stowords (e.g. a, an, the)
+        twt = [token for token in twt if token not in self.stop_words] # remove stopwords
 
-        twt = [self.lemma.lemmatize(token) for token in twt if token] # stems words (e.g. babbled -> babble)
+        twt = [self.lemma.lemmatize(token) for token in twt if token] # stems words
 
         twt = " ".join(twt).strip()
         return twt

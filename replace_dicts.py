@@ -89,7 +89,8 @@ emoji_dict = {
     "😓": "negative",
 }
 
-# source of emoticon dataset: github.com/evijit/Tweets_NLP/blob/master/Lexicons/EmoticonSentimentLexicon/EmoticonSentimentLexicon.txt
+# source of emoticon dataset: 
+# github.com/evijit/Tweets_NLP/blob/master/Lexicons/EmoticonSentimentLexicon
 emoticons = {
     r"#(": "negative",
     r"#-(": "negative",
