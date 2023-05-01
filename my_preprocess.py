@@ -21,7 +21,7 @@ class Preprocessor:
         self.emojis = emoji_dict
         self.emoticons = emoticons
 
-        # source: www.kaggle.com/datasets/aksharagadwe/abbreviations-and-slangs-for-text-preprocessing
+        # source: kaggle.com/datasets/aksharagadwe/abbreviations-and-slangs-for-text-preprocessing
         self.slang = pd.read_csv("slang.csv")
 
     # replace emojis with their sentiments
@@ -51,10 +51,11 @@ class Preprocessor:
 
         return twt
 
-    # removes urls, hashtags, mentions, stopwords, and non-alphanumeric chars and lemmatizes the text
+    # removes urls, hashtags, mentions, stopwords, and non-alphanumeric chars and lemmatizes words
     def preprocess_twt(self, twt):
-        # next line source: https://stackoverflow.com/questions/11331982/
-        twt = re.sub(r"(https?:\/\/)(\s)*(www\.)?(\s)*((\w|\s)+\.)*([\w\-\s]+\/)*([\w\-]+)((\?)?[\w\s]*=\s*[\w\%&]*)*", "", twt) # removes urls
+        # removes urls, source: https://stackoverflow.com/questions/11331982/
+        twt = re.sub(r"(https|http)?:\/\/(\w|\.|\/|\?|\=|\&|\%)*\b", "", twt)
+
         twt = re.sub(r"@\w+", "", twt) # removes mentions
         twt = re.sub(r"#\w+", "", twt) # removes hashtags
         twt = re.sub(r"[^a-zA-Z0-9]", " ", twt) # removes non-alphanumeric chars
